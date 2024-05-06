@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  title: Proteria Group - Shipment API
+  description: The Proteria Group Shipment API
+  termsOfService: https://www.proteria.com/proteriaapiterms
+  contact:
+    email: mette@proteria.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://localhost:8000/proteriagroup/shipment/1.0.0
+    description: Proteria Group API - Shipment
+paths:
+  /shipments:
+    post:
+      summary: create one or more shipments
+      description: Creates one or more shipments
+      operationId: createShipments
+      requestBody:
+        description: Shipment item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShipmentItems'
+      responses:
+        '202':
+          description: item accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResponse'
+        '400':
+          description: item rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralResponse'
+components:
+  schemas:
+    ShipmentItems:
+      type: array
+      description: A list of shipment items
+      items:
+        $ref: '#/components/schemas/ShipmentItem'
+    ShipmentItem:
+      required:
+        - carrier
+        - carrierProduct
+        - carrierProductServiceJson
+        - consignee
+        - consignor
+        - shipmentId
+        - parcels
+      type: object
+      properties:
+        shipmentId:
+          type: string
+          format: uuid - or what?
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        carrier:
+          type: string
+          example: postnord_no
+        carrierProduct:
+          type: string
+          example: MYPACK_BOX
+        consignor:
+          $ref: '#/components/schemas/Consignor'
+        consignee:
+          $ref: '#/components/schemas/Consignee'
+        parcels:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parcel'
+    Consignor:
+      required:
+        - address1
+        - country
+        - name
+        - postCity
+        - postCode
+      type: object
+      properties:
+        name:
+          type: string
+          example: Ola Nordmann
+        address1:
+          type: string
+          example: Andeveien 13
+        address2:
+          type: string
+          example: 3. Etg.
+        postCode:
+          type: string
+          example: '3131'
+        postCity:
+          type: string
+          example: Andeby
+        state:
+          type: string
+          example: 'false'
+        country:
+          type: string
+          example: 'false'
+        phone:
+          type: string
+          example: '+4799887766'
+    Consignee:
+      required:
+        - address1
+        - country
+        - name
+        - postCity
+        - postCode
+      type: object
+      properties:
+        name:
+          type: string
+          example: Ola Nordmann
+        address1:
+          type: string
+          example: Andeveien 13
+        address2:
+          type: string
+          example: 3. Etg.
+        postCode:
+          type: string
+          example: '3131'
+        postCity:
+          type: string
+          example: Andeby
+        state:
+          type: string
+          example: 'false'
+        country:
+          type: string
+          example: 'false'
+        phone:
+          type: string
+          example: '+4799887766'
+        email:
+          type: string
+          example: receiver@somewhere.com
+    Parcel:
+      required:
+        - amount
+        - parcelType
+      properties:
+        parcelType:
+          type: string
+          example: kolli
+        lengthCM:
+          type: integer
+          example: 10
+        widthCM:
+          type: integer
+          example: 20
+        heightCM:
+          type: integer
+          example: 30
+        weightKG:
+          type: integer
+          example: 40
+        reference:
+          type: string
+          example: Your reference
+    GeneralResponse:
+      properties:
+        requestId:
+          type: string
+          description: If successful, a given request id
+          example: '123456789'
+        errors:
+          type: array
+          description: If unsuccessful, a list of errors
+          items:
+            $ref: '#/components/schemas/Error'
+    Error:
+      properties:
+        errorCode:
+          type: integer
+        errorText:
+          type: string
