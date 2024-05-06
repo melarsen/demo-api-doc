@@ -13,6 +13,17 @@ servers:
   - url: https://localhost:8000/proteriagroup/shipment/1.0.0
     description: Proteria Group API - Shipment
 paths:
+  /carriers:
+    get:
+      summary: get all possible carriers and their products
+      operationId: getCarriers
+      responses:
+        '200':
+          description: successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carriers'
   /shipments:
     post:
       summary: create one or more shipments
@@ -61,6 +72,58 @@ paths:
 
 components:
   schemas:
+    Carriers:
+      type: array
+      description: A list of carriers
+      items:
+        $ref: '#/components/schemas/Carrier'
+    Carrier:
+      required:
+        - carrierId
+      description: Specification of a carrier
+      type: object
+      properties:
+        carrierId:
+          type: string
+          example: postnord_no
+        carrierName:
+          type: string
+          example: Postnord Norge
+        carrierProducts:
+          type: array
+          description: list of this carrier products
+          items:
+            $ref: '#/components/schemas/CarrierProduct'
+    CarrierProduct:
+      required:
+        - productId
+      description: Specification of a carrier product
+      type: object
+      properties:
+        productId:
+          type: string
+          example: MYPACK_BOX
+        productName:
+          type: string
+          example: Mypack Box
+        productServices:
+          type: array
+          description: list of this products additional services
+          items:
+            $ref: '#/components/schemas/ProductService'
+    ProductService:
+      description: Specification of a product additional service
+      type: object
+      properties:
+        serviceId:
+          type: string
+          example: postnord_notification_email
+        serviceName:
+          type: string
+          example: Postnord Notification Email
+        serviceValue:
+          type: string
+          example: notifyme@somewhere.com
     ShipmentItems:
       type: array
       description: A list of shipment items
@@ -81,12 +144,17 @@ components:
           type: string
           format: uuid - or what?
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        correlationId:
+          type: string
+          description: Your given unique id for this shipment, matches the correlationId in the response
         carrier:
           type: string
           example: postnord_no
+          description: Given identifier of the carrier. Get all possible identifiers from carriers/
         carrierProduct:
           type: string
           example: MYPACK_BOX
+          description: Given identifier of the carrier product. Get all possible identifiers from carriers/
         services:
           type: array
           items:
@@ -95,6 +163,22 @@ components:
           $ref: '#/components/schemas/AddressParty'
         consignee:
           $ref: '#/components/schemas/AddressParty'
+        carrierMessage:
+          type: string
+          example: Entrance B, gate 44, blue doorbell
+          description: Extra message to the carrier
+        consigneeMessage:
+          type: string
+          example: As requested
+          description: Extra message to the consignee
+        consignorReference:
+          type: string
+          example: Ordernumber 1234
+          description: Senders reference
+        consigneeReference:
+          type: string
+          example: Purchase order 4321
+          description: Receivers reference
         parcels:
           type: array
           items:
@@ -102,11 +186,14 @@ components:
     ServiceItem:
       required:
       - serviceId
+      type: object
       properties:
         serviceId:
           type: string
+          description: Given identifier of the carrier service. Get all possible identifiers from carriers/
         serviceValue:
           type: string
+          description: Given value of the carrier service. Get all possible values from carriers/
     AddressParty:
       required:
         - name
@@ -156,10 +243,14 @@ components:
       required:
         - amount
         - parcelType
+      type: object
       properties:
         parcelType:
           type: string
           example: kolli - Evt. om den skulle vært enum?
+        correlationId:
+          type: string
+          description: Your given unique id for this parcel, matches the correlationId in the response
         lengthCM:
           type: integer
           example: 10
@@ -171,11 +262,18 @@ components:
           example: 30
         weightKG:
           type: integer
-          example: 40
-        reference:
+          example: 5
+        volumeDM3:
+          type: integer
+          example: 1
+        loadMeters:
+          type: integer
+          example: 2
+        description:
           type: string
-          example: Your reference
+          example: Your description
     ShipmentResponse:
+      type: object
       properties:
         idempotencyKey:
           type: string
@@ -186,6 +284,7 @@ components:
           items:
             $ref: '#/components/schemas/Shipment'
     Shipment:
+      type: object
       properties:
         id:
           type: string
@@ -201,20 +300,23 @@ components:
           items:
             $ref: '#/components/schemas/Parcel'
     Parcel:
+      type: object
       properties:
-        id:
+        parcelId:
           type: string
         correlationId:
           type: string
+          description: Unique id for this parcel, matches the given correlationId from the request
         parcelNumber:
           type: string
         trackingNumber:
           type: string
     RequestConfirmation:
+      type: object
       properties:
         requestId:
           type: string
-          description: If successful, a given request id
+          description: If successful, a given request id. For this approach, the requestId is created "in the system" (and not by the calling system)
           example: '123456789'
         errors:
           type: array
@@ -222,6 +324,7 @@ components:
           items:
             $ref: '#/components/schemas/Error'
     Error:
+      type: object
       properties:
         errorCode:
           type: integer
