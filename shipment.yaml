@@ -19,7 +19,7 @@ paths:
       description: Creates one or more shipments
       operationId: createShipments
       requestBody:
-        description: Shipment item to add
+        description: Shipment item(s) to add
         content:
           application/json:
             schema:
@@ -30,13 +30,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralResponse'
+                $ref: '#/components/schemas/RequestConfirmation'
         '400':
-          description: item rejected
+          description: item rejected, requestId will be empty
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GeneralResponse'
+                $ref: '#/components/schemas/RequestConfirmation'
+
+  /shipment/findByRequestId:
+    get:
+      summary: get shipment by requestId
+      description: With the received requestId from /shipments, get the associated response
+      operationId: findShipmentsByRequestId
+      parameters:
+        - name: requestId
+          in: query
+          description: The requestId received from shipments/ endpoint
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ShipmentResponse"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found"
+
 components:
   schemas:
     ShipmentItems:
@@ -72,7 +98,7 @@ components:
         parcels:
           type: array
           items:
-            $ref: '#/components/schemas/Parcel'
+            $ref: '#/components/schemas/ParcelItem'
     Consignor:
       required:
         - address1
@@ -142,7 +168,7 @@ components:
         email:
           type: string
           example: receiver@somewhere.com
-    Parcel:
+    ParcelItem:
       required:
         - amount
         - parcelType
@@ -165,7 +191,42 @@ components:
         reference:
           type: string
           example: Your reference
-    GeneralResponse:
+    ShipmentResponse:
+      properties:
+        idempotencyKey:
+          type: string
+          description: Unique key for this response? Or is this the requestId?
+        shipments:
+          type: array
+          description: A list of shipments 
+          items:
+            $ref: '#/components/schemas/Shipment'
+    Shipment:
+      properties:
+        id:
+          type: string
+        correlationId:
+          type: string
+        consignmentNumber:
+          type: string
+        trackingNumber:
+          type: string
+        parcels:
+          type: array
+          description: list of parcels
+          items:
+            $ref: '#/components/schemas/Parcel'
+    Parcel:
+      properties:
+        id:
+          type: string
+        correlationId:
+          type: string
+        parcelNumber:
+          type: string
+        trackingNumber:
+          type: string
+    RequestConfirmation:
       properties:
         requestId:
           type: string
