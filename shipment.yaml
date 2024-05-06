@@ -30,7 +30,7 @@ paths:
       description: Creates one or more shipments
       operationId: createShipments
       requestBody:
-        $ref: '#/components/schemas/ShipmentItems'
+        $ref: '#/components/requestBodies/ShipmentItems'
       responses:
         '202':
           description: item accepted
