@@ -19,11 +19,7 @@ paths:
       description: Creates one or more shipments
       operationId: createShipments
       requestBody:
-        description: Shipment item(s) to add
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ShipmentItems'
+        $ref: '#/components/schemas/ShipmentItems'
       responses:
         '202':
           description: item accepted
@@ -91,52 +87,31 @@ components:
         carrierProduct:
           type: string
           example: MYPACK_BOX
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceItem'
         consignor:
-          $ref: '#/components/schemas/Consignor'
+          $ref: '#/components/schemas/AddressParty'
         consignee:
-          $ref: '#/components/schemas/Consignee'
+          $ref: '#/components/schemas/AddressParty'
         parcels:
           type: array
           items:
             $ref: '#/components/schemas/ParcelItem'
-    Consignor:
+    ServiceItem:
       required:
-        - address1
-        - country
-        - name
-        - postCity
-        - postCode
-      type: object
+      - serviceId
       properties:
-        name:
+        serviceId:
           type: string
-          example: Ola Nordmann
-        address1:
+        serviceValue:
           type: string
-          example: Andeveien 13
-        address2:
-          type: string
-          example: 3. Etg.
-        postCode:
-          type: string
-          example: '3131'
-        postCity:
-          type: string
-          example: Andeby
-        state:
-          type: string
-          example: 'false'
-        country:
-          type: string
-          example: 'false'
-        phone:
-          type: string
-          example: '+4799887766'
-    Consignee:
+    AddressParty:
       required:
+        - name
         - address1
         - country
-        - name
         - postCity
         - postCode
       type: object
@@ -168,6 +143,15 @@ components:
         email:
           type: string
           example: receiver@somewhere.com
+        contactPersonName:
+          type: string
+          example: Name of contact person
+        contactPersonPhone:
+          type: string
+          example: Phone of contact person
+        contactPersonEmail:
+          type: string
+          example: Email of contact person
     ParcelItem:
       required:
         - amount
@@ -175,7 +159,7 @@ components:
       properties:
         parcelType:
           type: string
-          example: kolli
+          example: kolli - Evt. om den skulle vært enum?
         lengthCM:
           type: integer
           example: 10
@@ -243,3 +227,11 @@ components:
           type: integer
         errorText:
           type: string
+  requestBodies:
+    ShipmentItems:
+      description: ShipmentItems
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ShipmentItems'
