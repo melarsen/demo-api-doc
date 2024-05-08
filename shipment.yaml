@@ -70,6 +70,54 @@ paths:
         404:
           description: "Not found"
 
+  /resources/label/findByResourceId:
+    get:
+      summary: get label PDF by resourceId
+      description: >-
+        Get label PDF by the given resourceId
+      operationId: getLabelByResourceId
+      parameters:
+        - name: resourceId
+          in: query
+          description: resourceId of label that needs to be fetched
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found
+
+  /resources/document/findByResourceId:
+    get:
+      summary: get document PDF by resourceId
+      description: >-
+        Get document PDF by the given resourceId
+      operationId: getDocumentByResourceId
+      parameters:
+        - name: resourceId
+          in: query
+          description: resourceId of document that needs to be fetched
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not found
+
 components:
   schemas:
     Carriers:
@@ -277,7 +325,7 @@ components:
       properties:
         idempotencyKey:
           type: string
-          description: Unique key for this response? Or is this the requestId?
+          description: Unique key for this response. This will match the requestId from the initial RequestConfirmation
         shipments:
           type: array
           description: A list of shipments 
@@ -290,6 +338,7 @@ components:
           type: string
         correlationId:
           type: string
+          description: Unique key for this shipment within the corresponding idempotencyKey.
         consignmentNumber:
           type: string
         trackingNumber:
@@ -299,6 +348,11 @@ components:
           description: list of parcels
           items:
             $ref: '#/components/schemas/Parcel'
+        resources:
+          type: array
+          description: list of resources related to this shipment, for example label or other shipping documents
+          items:
+            $ref: '#/components/schemas/Resource'
     Parcel:
       type: object
       properties:
@@ -311,12 +365,26 @@ components:
           type: string
         trackingNumber:
           type: string
+    Resource:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          description: The id of the resource. Use with /resources/{type}/findByResourceId to fetch the actual resource
+          example: '123456789'
+        resourceType:
+          type: string
+          description: The type of resource
+          enum:
+            - label
+            - document
+
     RequestConfirmation:
       type: object
       properties:
         requestId:
           type: string
-          description: If successful, a given request id. For this approach, the requestId is created "in the system" (and not by the calling system)
+          description: If successful, s list of resourceIds. Use For this approach, the requestId is created "in the system" (and not by the calling system)
           example: '123456789'
         errors:
           type: array
