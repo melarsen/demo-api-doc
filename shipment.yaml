@@ -63,8 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/ShipmentResponse"
+                $ref: "#/components/schemas/ShipmentResponse"
         400:
           description: "Invalid arguments"
         404:
@@ -321,7 +320,6 @@ components:
           type: string
           example: Your description
     ShipmentResponse:
-      type: object
       properties:
         idempotencyKey:
           type: string
@@ -374,17 +372,18 @@ components:
           example: '123456789'
         resourceType:
           type: string
-          description: The type of resource
+          description: The type of resource, each type corresponds to a url part to be used to fetch this resource
           enum:
             - label
             - document
-
     RequestConfirmation:
       type: object
       properties:
         requestId:
           type: string
-          description: If successful, s list of resourceIds. Use For this approach, the requestId is created "in the system" (and not by the calling system)
+          description: >-
+            If successfully received, a requestId is returned. Use the requestId to get your response with /shipment/findByRequestId 
+            For this approach, the requestId is created "in the system" (and not by the calling system).
           example: '123456789'
         errors:
           type: array
