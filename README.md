@@ -4,10 +4,21 @@ Hosted by GitHub Pages melarsen at: https://melarsen.github.io/demo-api-doc
 
 Public repo with autodeploy to github pages in master branch at: https://github.com/melarsen/demo-api-doc
 
-## Available docs
-- shipment.yaml
-- petstore-sample.yaml
+## Shipment API
+Internal Proteria Group Shipment API
 
+- Doc: https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2613641223/Proteria+Group+Shipment+API
+- File: shipment.yaml
+
+
+
+## Sample
+Sample Open API yaml
+
+- File: petstore-sample.yaml
+
+----
+----
 
 # Template doc: How to host Swagger API documentation with GitHub Pages
 [<img alt="The blog of Peter Evans: How to Host Swagger Documentation With Github Pages" title="View blog post" src="https://peterevans.dev/img/blog-published-badge.svg">](https://peterevans.dev/posts/how-to-host-swagger-docs-with-github-pages/)

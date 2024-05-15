@@ -2,13 +2,10 @@ openapi: 3.0.0
 info:
   title: Proteria Group - Shipment API
   description: The Proteria Group Shipment API
-  termsOfService: https://www.proteria.com/proteriaapiterms
-  contact:
-    email: mette@proteria.com
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
+externalDocs:
+  description: Shipment API documentation
+  url: 'https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2613641223/Proteria+Group+Shipment+API'
 servers:
   - url: https://localhost:8000/proteriagroup/shipment/1.0.0
     description: Proteria Group API - Shipment
