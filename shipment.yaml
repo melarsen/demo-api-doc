@@ -30,7 +30,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Carriers'
-  /shipments:
+  /shipment/booking:
     post:
       summary: create a shipment booking request
       description: |
@@ -40,7 +40,7 @@ paths:
         This id must be reused to fetch the result afterwards in /shipment/findByCorrelationId
       operationId: createBookingRequest
       requestBody:
-        $ref: '#/components/requestBodies/ShipmentItems'
+        $ref: '#/components/requestBodies/ShipmentBookingRequest'
       responses:
         '202':
           description: item accepted
@@ -55,16 +55,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/RequestConfirmation'
 
-  /shipment/findByRequestId:
+  /shipment/findByCorrelationId:
     get:
       summary: get shipment by correlationId
       description: | 
         With the correlationId from /shipment/booking, get the associated response
       operationId: findShipmentsByCorrelationId
       parameters:
-        - name: requestId
+        - name: correlationId
           in: query
-          description: The requestId received from shipments/ endpoint
+          description: The correlationId from shipment/booking endpoint
           required: true
           schema:
             type: string
@@ -78,7 +78,7 @@ paths:
         400:
           description: "Invalid arguments"
         404:
-          description: "Not found"
+          description: "Not found. Unknown correlationId"
 
   /resources/label/findByResourceId:
     get:
@@ -185,12 +185,7 @@ components:
         serviceValue:
           type: string
           example: notifyme@somewhere.com
-    ShipmentItems:
-      type: array
-      description: A list of shipment items
-      items:
-        $ref: '#/components/schemas/ShipmentItem'
-    ShipmentItem:
+    ShipmentBookingRequest:
       required:
         - correlationId
         - carrier
@@ -200,10 +195,6 @@ components:
         - consignee
       type: object
       properties:
-        shipmentId:
-          type: string
-          format: uuid - or what?
-          example: d290f1ee-6c54-4b01-90e6-d701748f0851
         correlationId:
           type: string
           description: Your given unique id for this shipment, matches the correlationId in the response
@@ -315,16 +306,19 @@ components:
         When creating a booking, provide the parcel information in this object.
         Provide you own unique identifier of the parcel as the correlationId
       required:
-        - amount
+        - correlationId
         - parcelType
       type: object
       properties:
-        parcelType:
-          type: string
-          example: kolli - Evt. om den skulle vært enum?
         correlationId:
           type: string
-          description: Your given unique id for this parcel, matches the correlationId in the response
+          description: Your given unique id for this parcel as provided in ShipmentBookingRequest.
+        parcelType:
+          type: string
+          example: kolli (Trenger vi denne??)
+        description:
+          type: string
+          example: Your description of the parcel (Trenger vi denne??)
         lengthCM:
           type: integer
           example: 10
@@ -383,7 +377,7 @@ components:
           description: TBD - This items is not defined yet....
     ShipmentResponse:
       properties:
-        idempotencyKey:
+        correlationId:
           type: string
           description: Unique key for this shipment. This will match the correlationId from the initial ShipmentBookingRequest
         status:
@@ -400,11 +394,9 @@ components:
     Shipment:
       type: object
       properties:
-        id:
-          type: string
         correlationId:
           type: string
-          description: Unique key for this shipment within the corresponding idempotencyKey.
+          description: Unique key for this shipment. This will match the correlationId from the initial ShipmentBookingRequest
         consignmentNumber:
           type: string
         trackingNumber:
@@ -422,15 +414,15 @@ components:
     Parcel:
       type: object
       properties:
-        parcelId:
-          type: string
         correlationId:
           type: string
-          description: Unique id for this parcel, matches the given correlationId from the request
-        parcelNumber:
+          description: Unique id for this parcel, matches the given correlationId from ParcelItem in the request
+        carrierParcelNumber:
           type: string
-        trackingNumber:
+          description: Carrier id for this parcel
+        carrierTrackingNumber:
           type: string
+          description: Carrier trackingNumber for this parcel
     Resource:
       type: object
       properties:
@@ -447,7 +439,7 @@ components:
     RequestConfirmation:
       type: object
       properties:
-        requestId:
+        correlationId:
           type: string
           description: |
             If successfully received, your correlationId is returned. Use the correlationId to get your response with /shipment/findByCorrelationId 
@@ -477,10 +469,12 @@ components:
           description: description of alert
           example: The product value is unknown
   requestBodies:
-    ShipmentItems:
-      description: ShipmentItems
+    ShipmentBookingRequest:
+      description: ShipmentBookingRequest
       required: true
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ShipmentItems'
+            $ref: '#/components/schemas/ShipmentBookingRequest'
+
+
