@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Proteria Group - Customer API
+  description: The Proteria Group Customer API
+  version: 1.0.0
+externalDocs:
+  description: Customer API documentation
+  url: 'https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2625732623/Proteria+Group+Customer+API'
+servers: 
+    - url: 'https:///{basepath}/{version}/customer'
+      description: The customer API URL
+      variables:
+        basepath:
+          default: api.proteria.com
+          enum:
+            - api.proteria.com
+            - sandbox.proteria.com
+            - localhost
+        version:
+          default: v1
+paths:
+  /customer/{customerId}:
+    get:
+      summary: Get customer by customerId
+      operationId: getCustomerById
+      parameters:
+        - name: customerId
+          in: path
+          description: The customerId of the customer
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found. Unknown customerId"
+
+  /customer/{customerId}/carriers:
+    get:
+      summary: Get all carriers for customer by customerId
+      operationId: getCustomerCarriersByCustomerId
+      parameters:
+        - name: customerId
+          in: path
+          description: The customerId of the customer
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCarriers"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found. Unknown customerId"
+    
+  /customer/{customerId}/carrier/{customerCarrierId}:
+    get:
+      summary: Get customer carrier by customerCarrierId
+      operationId: getCustomerCarrierByCustomerCarrierId
+      parameters:
+        - name: customerId
+          in: path
+          description: The customerId of the customer
+          required: true
+          schema:
+            type: string
+        - name: customerCarrierId
+          in: path
+          description: The customerCarrierId of the customer
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerCarrier"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found. Unknown customerCarrierId for this customerId"
+
+
+  /customer/{customerId}/resources:
+    get:
+      summary: Get all customer resources by customerId
+      operationId: getCustomerResourcesById
+      parameters:
+        - name: customerId
+          in: path
+          description: The customerId of the customer
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResources"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found. Unknown customerId"
+
+  /customer/{customerId}/resource/{resourceId}:
+    get:
+      summary: Get customer resources by customerId and resourceId
+      operationId: getCustomerResourceById
+      parameters:
+        - name: customerId
+          in: path
+          description: The customerId of the customer
+          required: true
+          schema:
+            type: string
+        - name: resourceId
+          in: path
+          description: The resourceId of the resource
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "successful operation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerResource"
+        400:
+          description: "Invalid arguments"
+        404:
+          description: "Not found. Unknown resourceId"
+
+components:
+  schemas:
+    Customer:
+      description: | 
+        There will be several more fields required here...
+        To be defined...
+      type: object
+      properties:
+        customerId:
+          type: string
+        customerStaus:
+          type: string
+          description: |
+            Status of customer. Is NEW when setup is in progress and not complete yet.
+            Statuss: NEW -> DEMO -> ACTIVE -> ENDED
+          enum:
+            - ACTIVE
+            - DEMO
+            - ENDED
+            - NEW
+        customerModules:
+          type: array
+          description: The active modules for this customer
+          items:
+            $ref: '#/components/schemas/CustomerModule'
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address1:
+          type: string
+          example: Andeveien 13
+        address2:
+          type: string
+          example: 3. Etg.
+        postCode:
+          type: string
+          example: '3131'
+        postCity:
+          type: string
+          example: Andeby
+        state:
+          type: string
+          example: 'false'
+        country:
+          type: string
+          example: 'false'
+        email:
+          type: string
+        phone:
+          type: string
+  
+    CustomerCarrier:
+      required:
+        - carrierId
+      description: Specification of a carrier setup for a customer
+      type: object
+      properties:
+        customerCarrierId:
+          type: string
+          description: | 
+            The internal id of this customer carrier. 
+            We can allow for several customer carrier configurations.
+        customerCarrierName:
+          type: string
+          description: | 
+            Human readable friendly name of the CustomerCarrier configuration
+          example: Postnord Fraktavtale Proteria
+        carrierId:
+          type: string
+          example: postnord_no
+        carrierAccountNumber:
+          type: string
+          example: 12341234
+          description: The carrier account number to book the shipment with.
+        carrierFreightSaleId:
+          type: string
+          example: PN_BASIC
+          description: The freightsale deal active for this customer. This must have a given value when freightsale!
+        carrierApiUsername:
+          type: string
+          example: username
+          description: The customer carrier account api username.
+        carrierApiPassword:
+          type: string
+          example: string-password
+          description: The customer carrier account api password.
+        carrierApiKey:
+          type: string
+          example: APIKEY123456789
+          description: The customer carrier account api key.
+        customerCarrierProducts:
+          type: array
+          description: |
+            List of available carrier products for this customer. 
+            Reuse the CarrierProduct element from shipment? Or redefine new with some extra fields?
+            To be defined..
+          items:
+            $ref: 'https://melarsen.github.io/demo-api-doc/shipment.yaml#/components/schemas/CarrierProduct'
+        specialCarrierSettings:
+          $ref: '#/components/schemas/SpecialCarrierSettings'
+
+    CustomerResource:
+      required:
+        - customerResourceId
+      description: Specification of a resource for a customer
+      type: object
+      properties:
+        customerResourceId:
+          type: string
+          description: | 
+            The internal id of this customer resource. 
+        customerResourceName:
+          type: string
+          description: | 
+            Human readable friendly name of the CustomerResource configuration
+          example: FedEx Letterhead Company A
+        customerResourceContent:
+          type: string
+          format: binary
+          description: | 
+            The binary customer resource 
+          example: Could be an PDF, see customerResourceContentType
+        customerResourceContentType:
+          type: string
+          enum:
+            - PDF
+            - IMAGE
+            - TEXT
+
+    CustomerCarriers:
+      type: array
+      description: A list of customer carriers
+      items:
+        $ref: '#/components/schemas/CustomerCarrier'
+    CustomerResources:
+      type: array
+      description: A list of customer resources
+      items:
+        $ref: '#/components/schemas/CustomerResources'
+    SpecialCarrierSettings:
+      description: | 
+        Additional special carrier settings.
+        To be defined...

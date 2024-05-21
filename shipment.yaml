@@ -197,6 +197,7 @@ components:
       properties:
         correlationId:
           type: string
+          example: YOUR-UNIQUE-BOOKING-REQUEST-ID-112233445566778899
           description: Your given unique id for this shipment, matches the correlationId in the response
         carrier:
           type: string
