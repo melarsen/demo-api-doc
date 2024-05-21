@@ -31,15 +31,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Customer"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown customerId"
 
   /customer/{customerId}/carriers:
@@ -54,15 +54,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerCarriers"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown customerId"
     
   /customer/{customerId}/carrier/{customerCarrierId}:
@@ -83,15 +83,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerCarrier"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown customerCarrierId for this customerId"
 
 
@@ -107,15 +107,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerResources"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown customerId"
 
   /customer/{customerId}/resource/{resourceId}:
@@ -136,15 +136,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CustomerResource"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown resourceId"
 
 components:
@@ -276,6 +276,35 @@ components:
             - PDF
             - IMAGE
             - TEXT
+    CustomerModule:
+      description: Specification of a module for a customer
+      type: object
+      properties:
+        customerModuleId:
+          type: string
+          description: | 
+            The internal id of this customer module. 
+        customerModuleName:
+          type: string
+          description: | 
+            Human readable friendly name of the CustomerModule
+          example: Cloudprint
+        customerModuleProp:
+          type: string
+          description: |
+            More properties to be defined...
+            TBD...
+
+    SpecialCarrierSettings:
+      description: | 
+        Additional special carrier settings.
+        To be defined...
+      type: object
+      properties:
+        someCustomsParameter:
+          type: string
+          description: | 
+            To be described.... 
 
     CustomerCarriers:
       type: array
@@ -286,8 +315,4 @@ components:
       type: array
       description: A list of customer resources
       items:
-        $ref: '#/components/schemas/CustomerResources'
-    SpecialCarrierSettings:
-      description: | 
-        Additional special carrier settings.
-        To be defined...
+        $ref: '#/components/schemas/CustomerResource'

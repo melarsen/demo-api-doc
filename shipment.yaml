@@ -69,64 +69,51 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "successful operation"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ShipmentResponse"
-        400:
+        '400':
           description: "Invalid arguments"
-        404:
+        '404':
           description: "Not found. Unknown correlationId"
 
-  /resources/label/findByResourceId:
+  /resources/{resourceType}/{resourceId}:
     get:
-      summary: get label PDF by resourceId
+      summary: get resource by resourceId and resourceType
       description: |
         Get label PDF by the given resourceId
       operationId: getLabelByResourceId
       parameters:
-        - name: resourceId
-          in: query
-          description: resourceId of label that needs to be fetched
+        - in: path
+          name: resourceType
+          description: resourceType of the resource to fetch
+          required: true
+          schema:
+            $ref: '#/components/schemas/ResourceType'
+        - in: path
+          name: resourceId
+          description: resourceId of the resource to fetch
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: A PDF file
+          description: A resource file corresponding to the given resourceType
           content:
             application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/png:
               schema:
                 type: string
                 format: binary
         '404':
           description: Not found
 
-  /resources/document/findByResourceId:
-    get:
-      summary: get document PDF by resourceId
-      description: |
-        Get document PDF by the given resourceId
-      operationId: getDocumentByResourceId
-      parameters:
-        - name: resourceId
-          in: query
-          description: resourceId of document that needs to be fetched
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: A PDF file
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: Not found
 
 components:
   schemas:
@@ -352,7 +339,7 @@ components:
           description: TBD - This items is not defined yet....
     TaxInformation:
       type: object
-      description: Tax Information (tin), applicable when shipping abroad.
+      description: Tax Information (tin), applicable when shipping abroad. Required for consignor.
       properties:
         tinNumber:
           type: string
@@ -365,6 +352,7 @@ components:
             Type of Tax information
             Use BUSINESS_UNION for IOSS, and the IOSS number in tinNumber
             Use BUSINESS_NATIONAL for regular MVA, and the MVA number in tinNumber
+            We might not need PERSONAL_NATIONAL (not sure in what scenario we would need it)
           enum:
             - BUSINESS_NATIONAL
             - BUSINESS_UNION
@@ -376,24 +364,31 @@ components:
         somethingCustoms:
           type: string
           description: TBD - This items is not defined yet....
+
     ShipmentResponse:
       properties:
         correlationId:
           type: string
           description: Unique key for this shipment. This will match the correlationId from the initial ShipmentBookingRequest
         status:
-          type: string
-          description: The status of this shipment booking
+          $ref: '#/components/schemas/ShipmentResponseStatus'
         shipment:
-          description: The given shipment response
           $ref: '#/components/schemas/Shipment'
         alerts:
           type: array
-          description: A list of alerts
           items:
             $ref: '#/components/schemas/Alert'
+    ShipmentResponseStatus:
+      type: string
+      description: |
+        One of the possible statuses to get. 
+        When *READY* use the correlationId to fetch the associated response with /shipment/findByCorrelationId
+      enum:
+        - IN_PROGRESS
+        - READY
     Shipment:
       type: object
+      description: The given shipment response
       properties:
         correlationId:
           type: string
@@ -432,11 +427,7 @@ components:
           description: The id of the resource. Use with /resources/{type}/findByResourceId to fetch the actual resource
           example: '123456789'
         resourceType:
-          type: string
-          description: The type of resource, each type corresponds to a url part to be used to fetch this resource
-          enum:
-            - label
-            - document
+          $ref: '#/components/schemas/ResourceType'
     RequestConfirmation:
       type: object
       properties:
@@ -469,6 +460,14 @@ components:
           type: string
           description: description of alert
           example: The product value is unknown
+    ResourceType:
+          type: string
+          description: The supported type of resources
+          enum:
+            - label
+            - document
+            - image
+
   requestBodies:
     ShipmentBookingRequest:
       description: ShipmentBookingRequest
