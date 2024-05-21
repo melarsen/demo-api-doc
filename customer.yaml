@@ -22,6 +22,7 @@ paths:
   /customer/{customerId}:
     get:
       summary: Get customer by customerId
+      description: Get Customer Information by customerId
       operationId: getCustomerById
       parameters:
         - name: customerId
@@ -45,6 +46,7 @@ paths:
   /customer/{customerId}/carriers:
     get:
       summary: Get all carriers for customer by customerId
+      description: Get all carriers with available products and services for customer by customerId
       operationId: getCustomerCarriersByCustomerId
       parameters:
         - name: customerId
@@ -59,7 +61,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CustomerCarriers"
+                type: array
+                description: A list of carriers available for this customer
+                items:
+                  $ref: '#/components/schemas/CustomerCarrier'
         '400':
           description: "Invalid arguments"
         '404':
@@ -68,6 +73,7 @@ paths:
   /customer/{customerId}/carrier/{customerCarrierId}:
     get:
       summary: Get customer carrier by customerCarrierId
+      description: Get one specific carrier with available products and services for customer by customerId
       operationId: getCustomerCarrierByCustomerCarrierId
       parameters:
         - name: customerId
@@ -98,6 +104,7 @@ paths:
   /customer/{customerId}/resources:
     get:
       summary: Get all customer resources by customerId
+      description: Get all customer resources for a given customerId
       operationId: getCustomerResourcesById
       parameters:
         - name: customerId
@@ -120,7 +127,8 @@ paths:
 
   /customer/{customerId}/resource/{resourceId}:
     get:
-      summary: Get customer resources by customerId and resourceId
+      summary: Get customer resource by customerId and resourceId
+      description: Get a specific customer resource by customerId and resourceId
       operationId: getCustomerResourceById
       parameters:
         - name: customerId
@@ -155,49 +163,24 @@ components:
         To be defined...
       type: object
       properties:
-        customerId:
-          type: string
-        customerStaus:
+        customerInformation:
+          $ref: '#/components/schemas/CustomerInformation'
+        customerStatus:
           type: string
           description: |
             Status of customer. Is NEW when setup is in progress and not complete yet.
-            Statuss: NEW -> DEMO -> ACTIVE -> ENDED
+            Status flow: NEW -> DEMO -> ACTIVE -> CLOSED
+            Note to self: Backend: Each status change shold be stored with Old value, New value, date
           enum:
             - ACTIVE
             - DEMO
-            - ENDED
+            - CLOSED
             - NEW
         customerModules:
           type: array
           description: The active modules for this customer
           items:
             $ref: '#/components/schemas/CustomerModule'
-        firstName:
-          type: string
-        lastName:
-          type: string
-        address1:
-          type: string
-          example: Andeveien 13
-        address2:
-          type: string
-          example: 3. Etg.
-        postCode:
-          type: string
-          example: '3131'
-        postCity:
-          type: string
-          example: Andeby
-        state:
-          type: string
-          example: 'false'
-        country:
-          type: string
-          example: 'false'
-        email:
-          type: string
-        phone:
-          type: string
   
     CustomerCarrier:
       required:
@@ -248,6 +231,38 @@ components:
             $ref: 'https://melarsen.github.io/demo-api-doc/shipment.yaml#/components/schemas/CarrierProduct'
         specialCarrierSettings:
           $ref: '#/components/schemas/SpecialCarrierSettings'
+
+    CustomerInformation:
+      description: | 
+        Customer Information, like address and contact information?    
+        Might need a list of contactpersons?   
+        Might rename to CustomerAddress + CustomerContact?
+        TBD - To be defined...
+      properties:
+        customerName:
+          type: string
+        address1:
+          type: string
+          example: Andeveien 13
+        address2:
+          type: string
+          example: 3. Etg.
+        postCode:
+          type: string
+          example: '3131'
+        postCity:
+          type: string
+          example: Andeby
+        state:
+          type: string
+          example: 'false'
+        country:
+          type: string
+          example: 'false'
+        email:
+          type: string
+        phone:
+          type: string
 
     CustomerResource:
       required:
@@ -306,11 +321,6 @@ components:
           description: | 
             To be described.... 
 
-    CustomerCarriers:
-      type: array
-      description: A list of customer carriers
-      items:
-        $ref: '#/components/schemas/CustomerCarrier'
     CustomerResources:
       type: array
       description: A list of customer resources

@@ -21,7 +21,7 @@ servers:
 paths:
   /carriers:
     get:
-      summary: get all possible carriers and their products
+      summary: Get all possible carriers and their products
       operationId: getCarriers
       responses:
         '200':
@@ -29,15 +29,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Carriers'
+                type: array
+                description: A list of carriers
+                items:
+                  $ref: '#/components/schemas/Carrier'
+
   /shipment/booking:
     post:
-      summary: create a shipment booking request
+      summary: Create a request for a shipment booking
       description: |
         Creates a shipment booking request. 
 
-        The correlationId of the request must be unique and is provided by the calling system.
-        This id must be reused to fetch the result afterwards in /shipment/findByCorrelationId
+        The correlationId of the request must be unique and is provided by the calling system.   
+        This correlationId is reused to fetch the result in /shipment/findByCorrelationId
       operationId: createBookingRequest
       requestBody:
         $ref: '#/components/requestBodies/ShipmentBookingRequest'
@@ -57,10 +61,10 @@ paths:
 
   /shipment/findByCorrelationId:
     get:
-      summary: get shipment by correlationId
+      summary: Get ShipmentResponse by correlationId
       description: | 
         With the correlationId from /shipment/booking, get the associated response
-      operationId: findShipmentsByCorrelationId
+      operationId: getShipmentResponseByCorrelationId
       parameters:
         - name: correlationId
           in: query
@@ -82,14 +86,14 @@ paths:
 
   /resources/{resourceType}/{resourceId}:
     get:
-      summary: get resource by resourceId and resourceType
+      summary: Get resource by resourceId and resourceType
       description: |
-        Get label PDF by the given resourceId
-      operationId: getLabelByResourceId
+        Get resource (label, document or image) by the given resourceId and resourceType
+      operationId: getResource
       parameters:
         - in: path
           name: resourceType
-          description: resourceType of the resource to fetch
+          description: ResourceType of the resource to fetch
           required: true
           schema:
             $ref: '#/components/schemas/ResourceType'
@@ -117,11 +121,6 @@ paths:
 
 components:
   schemas:
-    Carriers:
-      type: array
-      description: A list of carriers
-      items:
-        $ref: '#/components/schemas/Carrier'
     Carrier:
       required:
         - carrierId
@@ -137,9 +136,10 @@ components:
           example: Postnord Norge
         carrierProducts:
           type: array
-          description: list of this carrier products
+          description: List of this carrier products
           items:
             $ref: '#/components/schemas/CarrierProduct'
+
     CarrierProduct:
       required:
         - productId
@@ -159,6 +159,7 @@ components:
           description: list of this products additional services
           items:
             $ref: '#/components/schemas/ProductService'
+
     ProductService:
       description: Specification of a product additional service
       type: object
@@ -172,7 +173,11 @@ components:
         serviceValue:
           type: string
           example: notifyme@somewhere.com
+
     ShipmentBookingRequest:
+      description: |
+        This is the ShipmentBookingRequest created to request a booking with a carrier.   
+        You need to make sure to create a unique correlationId for each booking request.
       required:
         - correlationId
         - carrier
@@ -230,6 +235,7 @@ components:
           $ref: '#/components/schemas/CustomsInformation'
 
     ServiceItem:
+      description: Carrier service items for a given product
       required:
       - serviceId
       type: object
@@ -240,7 +246,11 @@ components:
         serviceValue:
           type: string
           description: Given value of the carrier service. Get all possible values from carriers/
+
     AddressParty:
+      description: | 
+        Currently reusing this object for both consignor and consignee.   
+        Not sure if we need to differenciate...
       required:
         - name
         - address1
@@ -291,8 +301,8 @@ components:
             
     ParcelItem:
       description: |
-        When creating a booking, provide the parcel information in this object.
-        Provide you own unique identifier of the parcel as the correlationId
+        When creating a booking, provide the parcel information in this object.  
+        Provide your own unique identifier of the parcel as the correlationId
       required:
         - correlationId
         - parcelType
@@ -330,16 +340,19 @@ components:
           description: |
             List of goods items within this parcel.
           $ref: '#/components/schemas/ParcelGoodsItem'
+
     ParcelGoodsItem:
+      description: TO BE DEFINED - Her kommer vareinformasjon inn...
       properties:
         correlationId:
           type: string
         somethingElse:
           type: string
           description: TBD - This items is not defined yet....
+
     TaxInformation:
       type: object
-      description: Tax Information (tin), applicable when shipping abroad. Required for consignor.
+      description: Tax Information (tin), applicable for consignor when shipping abroad. 
       properties:
         tinNumber:
           type: string
@@ -349,27 +362,32 @@ components:
         tinType:
           type: string
           description: |
-            Type of Tax information
-            Use BUSINESS_UNION for IOSS, and the IOSS number in tinNumber
-            Use BUSINESS_NATIONAL for regular MVA, and the MVA number in tinNumber
-            We might not need PERSONAL_NATIONAL (not sure in what scenario we would need it)
+            Type of Tax information   
+            Use BUSINESS_UNION for IOSS, and the IOSS number in tinNumber   
+            Use BUSINESS_NATIONAL for regular MVA, and the MVA number in tinNumber   
+            We might not need PERSONAL_NATIONAL (not sure in what scenario we would need it)   
           enum:
             - BUSINESS_NATIONAL
             - BUSINESS_UNION
             - PERSONAL_NATIONAL     
+
     CustomsInformation:
       type: object
-      description: Customs Information, applicable when shipping abroad.
+      description: Customs Information, applicable when shipping abroad. TBD
       properties:
         somethingCustoms:
           type: string
           description: TBD - This items is not defined yet....
 
     ShipmentResponse:
+      type: object
+      description: |
+        The shipment response object returned by /shipment/findByCorrelationId 
       properties:
         correlationId:
           type: string
-          description: Unique key for this shipment. This will match the correlationId from the initial ShipmentBookingRequest
+          description: |
+            The unique correlationId given in the ShipmentBookingRequest.   
         status:
           $ref: '#/components/schemas/ShipmentResponseStatus'
         shipment:
@@ -378,17 +396,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Alert'
+
     ShipmentResponseStatus:
       type: string
       description: |
-        One of the possible statuses to get. 
+        One of the possible statuses to get.   
         When *READY* use the correlationId to fetch the associated response with /shipment/findByCorrelationId
       enum:
         - IN_PROGRESS
         - READY
+
     Shipment:
       type: object
-      description: The given shipment response
+      description: | 
+        A shipment object   
+        Part of the returned ShipmentResponse by /shipment/findByCorrelationId
       properties:
         correlationId:
           type: string
@@ -407,6 +429,7 @@ components:
           description: list of resources related to this shipment, for example label or other shipping documents
           items:
             $ref: '#/components/schemas/Resource'
+
     Parcel:
       type: object
       properties:
@@ -419,6 +442,7 @@ components:
         carrierTrackingNumber:
           type: string
           description: Carrier trackingNumber for this parcel
+
     Resource:
       type: object
       properties:
@@ -428,21 +452,26 @@ components:
           example: '123456789'
         resourceType:
           $ref: '#/components/schemas/ResourceType'
+
     RequestConfirmation:
       type: object
+      description: The object returned from /shipment/booking when a ShipmentBookingRequest is sent. 
       properties:
         correlationId:
           type: string
           description: |
-            If successfully received, your correlationId is returned. Use the correlationId to get your response with /shipment/findByCorrelationId 
+            If successfully received, your correlationId is returned.    
+            Use the correlationId to get your response with /shipment/findByCorrelationId 
           example: '123456789'
         alerts:
           type: array
           description: A list of alerts. 
           items:
             $ref: '#/components/schemas/Alert'
+
     Alert:
       type: object
+      description: An alert object that contains relevant information 
       properties:
         alertCode:
           type: string
@@ -451,7 +480,7 @@ components:
           example: UNKNOWN_CARRIER_PRODUCT
         alertType:
           type: string
-          description: Type of alert. 
+          description: Enum of the supported type of alerts we provide. 
           enum:
             - ERROR
             - WARNING
@@ -460,9 +489,10 @@ components:
           type: string
           description: description of alert
           example: The product value is unknown
+  
     ResourceType:
           type: string
-          description: The supported type of resources
+          description: Enum of the supported type of resources we provide
           enum:
             - label
             - document
@@ -478,3 +508,4 @@ components:
             $ref: '#/components/schemas/ShipmentBookingRequest'
 
 
+    
