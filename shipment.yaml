@@ -120,6 +120,30 @@ paths:
 
 
 components:
+  requestBodies:
+    ShipmentBookingRequest:
+      description: The object used in the body of POST /shipment/booking
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ShipmentBookingRequest'
+
+  responses:
+    RequestConfirmation:
+      description: The object returned from /shipment/booking when a ShipmentBookingRequest is sent. 
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RequestConfirmation'
+
+    ShipmentResponse:
+      description: The object returned from /shipment/findByCorrelationId 
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ShipmentResponse'
+
   schemas:
     Carrier:
       required:
@@ -145,7 +169,8 @@ components:
         - productId
       description: | 
         Specification of a carrier product. 
-        Currently the rules and specifications of each product is not returned...
+        Currently the rules and specifications of each product is not returned...   
+        TBD...
       type: object
       properties:
         productId:
@@ -156,7 +181,7 @@ components:
           example: Mypack Box
         productServices:
           type: array
-          description: list of this products additional services
+          description: List of this products supported additional services
           items:
             $ref: '#/components/schemas/ProductService'
 
@@ -173,6 +198,7 @@ components:
         serviceValue:
           type: string
           example: notifyme@somewhere.com
+
 
     ShipmentBookingRequest:
       description: |
@@ -211,6 +237,35 @@ components:
           $ref: '#/components/schemas/AddressParty'
         consignee:
           $ref: '#/components/schemas/AddressParty'
+        freightsaleId:
+          type: string
+          example: '2173'
+          description: |
+            TBD...    
+            Internal Proteria kundesys id for freightsale   
+            I think it has its advantages to include this as a separate field.
+        sourceSystem:
+          type: string
+          example: 'LOGISTRA'
+          description: |
+            TBD...   
+            Could be one of LOGISTRA, PROTERIA, ?   
+            A bit afraid of enum here...
+        sourceSystemPart:
+          type: string
+          example: 'OUR-SHOPIFY-APP'
+          description: |
+            TBD...   
+            Some name of a spesific part of the system, like an id for an integration, app or API ?   
+            At least for our own integrations we should be able to provide this, and API-partners should use this.
+        sourceCustomerId:
+          type: string
+          example: '6300'
+          description: | 
+            TBD...   
+            Internal customer id for the source system (Logistra or Proteria customerId).   
+            This is the id in the source system of the customer requesting this booking
+            We might not need this, but can be convenient to include for logging...   
         carrierMessage:
           type: string
           example: Entrance B, gate 44, blue doorbell
@@ -235,7 +290,7 @@ components:
           $ref: '#/components/schemas/CustomsInformation'
 
     ServiceItem:
-      description: Carrier service items for a given product
+      description: Carrier additional service item for a given product
       required:
       - serviceId
       type: object
@@ -297,12 +352,14 @@ components:
           example: Email of contact person
         taxInformations:
           type: array
-          $ref: '#/components/schemas/TaxInformation'
+          items:
+            $ref: '#/components/schemas/TaxInformation'
             
     ParcelItem:
       description: |
         When creating a booking, provide the parcel information in this object.  
-        Provide your own unique identifier of the parcel as the correlationId
+        Provide your own unique identifier of the parcel as the correlationId   
+        TBD...
       required:
         - correlationId
         - parcelType
@@ -313,7 +370,7 @@ components:
           description: Your given unique id for this parcel as provided in ShipmentBookingRequest.
         parcelType:
           type: string
-          example: kolli (Trenger vi denne??)
+          example: kolli (TBD - Trenger vi denne??)
         description:
           type: string
           example: Your description of the parcel (Trenger vi denne??)
@@ -339,10 +396,11 @@ components:
           type: array
           description: |
             List of goods items within this parcel.
-          $ref: '#/components/schemas/ParcelGoodsItem'
+          items:
+            $ref: '#/components/schemas/ParcelGoodsItem'
 
     ParcelGoodsItem:
-      description: TO BE DEFINED - Her kommer vareinformasjon inn...
+      description: TBD... - Her kommer vareinformasjon inn...
       properties:
         correlationId:
           type: string
@@ -373,11 +431,14 @@ components:
 
     CustomsInformation:
       type: object
-      description: Customs Information, applicable when shipping abroad. TBD
+      description: |
+        TBD...   
+        Customs Information, applicable when shipping abroad.
       properties:
-        somethingCustoms:
+        somethingCustomsStuff:
           type: string
           description: TBD - This items is not defined yet....
+
 
     ShipmentResponse:
       type: object
@@ -410,41 +471,54 @@ components:
       type: object
       description: | 
         A shipment object   
-        Part of the returned ShipmentResponse by /shipment/findByCorrelationId
+        Part of the returned ShipmentResponse by /shipment/findByCorrelationId   
+        TBD... Could name this ShipmentResponse instead and rename the parent object to something else?
       properties:
         correlationId:
           type: string
           description: Unique key for this shipment. This will match the correlationId from the initial ShipmentBookingRequest
         consignmentNumber:
           type: string
+          description: Sendingsnummer
         trackingNumber:
           type: string
+          description: Sporingsnummer for hele sendingen. Har man dette eller er det kun på parcel-nivå?
         parcels:
           type: array
-          description: list of parcels
+          description: List of parcels related to this Shipment
           items:
             $ref: '#/components/schemas/Parcel'
         resources:
           type: array
-          description: list of resources related to this shipment, for example label or other shipping documents
+          description: List of resources related to this shipment, for example shipping label or other shipping documents
           items:
             $ref: '#/components/schemas/Resource'
 
     Parcel:
       type: object
+      description: | 
+        This object is part of a Shipment which is returned in the ShipmentResponse.
+        The object describes a parcel within a shipment.
+        A ShipmentResponse.Shipment can contain a list of Parcel objects.
       properties:
         correlationId:
           type: string
           description: Unique id for this parcel, matches the given correlationId from ParcelItem in the request
         carrierParcelNumber:
           type: string
-          description: Carrier id for this parcel
+          example: '00370704071914378137'
+          description: Carrier id for this parcel. Kollinummer.
         carrierTrackingNumber:
           type: string
-          description: Carrier trackingNumber for this parcel
+          example: '70704071914378136'
+          description: Carrier trackingNumber for this parcel. Sporingsnummer for hver kolli.
 
     Resource:
       type: object
+      description: | 
+        This object is part of a Shipment which is returned in the ShipmentResponse.
+        The object describes an available resource within a shipment.
+        A ShipmentResponse.Shipment can contain a list of Resource objects.
       properties:
         resourceId:
           type: string
@@ -471,7 +545,9 @@ components:
 
     Alert:
       type: object
-      description: An alert object that contains relevant information 
+      description: | 
+        This object is part of a the ShipmentResponse.
+        A ShipmentResponse can contain a list of Alert objects.
       properties:
         alertCode:
           type: string
@@ -497,15 +573,6 @@ components:
             - label
             - document
             - image
-
-  requestBodies:
-    ShipmentBookingRequest:
-      description: ShipmentBookingRequest
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ShipmentBookingRequest'
 
 
     
