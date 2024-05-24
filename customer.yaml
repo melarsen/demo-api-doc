@@ -156,6 +156,32 @@ paths:
           description: "Not found. Unknown resourceId"
 
 components:
+  responses:
+    Customer:
+      description: The object returned from /customer/{customerId}
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Customer'
+
+    CustomerCarrier:
+      description: |
+        The object returned from /customer/{customerId}/carrier/{customerCarrierId}   
+        Also this object is in the array returned from /customer/{customerId}/carriers
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CustomerCarrier"
+
+    CustomerResource:
+      description: |
+        The object returned from /customer/{customerId}/resources/{resourceId}   
+        Also this object is in the array returned from /customer/{customerId}/resources
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CustomerResource"    
+
   schemas:
     Customer:
       description: | 
@@ -172,10 +198,10 @@ components:
             Status flow: NEW -> DEMO -> ACTIVE -> CLOSED
             Note to self: Backend: Each status change shold be stored with Old value, New value, date
           enum:
-            - ACTIVE
-            - DEMO
-            - CLOSED
             - NEW
+            - DEMO
+            - ACTIVE
+            - CLOSED
         customerModules:
           type: array
           description: The active modules for this customer
@@ -237,6 +263,7 @@ components:
         Customer Information, like address and contact information?    
         Might need a list of contactpersons?   
         Might rename to CustomerAddress + CustomerContact?
+        Might reuse AddressParty or Actor objects from shipment.yaml
         TBD - To be defined...
       properties:
         customerName:
@@ -255,10 +282,10 @@ components:
           example: Andeby
         state:
           type: string
-          example: 'false'
         country:
           type: string
-          example: 'false'
+          description: Two letter country code
+          example: NO
         email:
           type: string
         phone:
@@ -291,28 +318,32 @@ components:
             - PDF
             - IMAGE
             - TEXT
+
     CustomerModule:
-      description: Specification of a module for a customer
+      description: | 
+        Specification of a module for a customer   
+        TBD...
       type: object
       properties:
         customerModuleId:
           type: string
           description: | 
             The internal id of this customer module. 
+          example: CARGONIZER, PROTERIA-FREIGHT, CLOUDPRINT, FEDEX, REPORTS
         customerModuleName:
           type: string
           description: | 
             Human readable friendly name of the CustomerModule
-          example: Cloudprint
+          example: Cargonizer, Proteria Frakt, Cloudprint, FedEx Module, Extended Reports
         customerModuleProp:
           type: string
           description: |
-            More properties to be defined...
+            More properties to be defined?...
             TBD...
 
     SpecialCarrierSettings:
       description: | 
-        Additional special carrier settings.
+        Additional special carrier settings.   
         TBD... 
       type: object
       properties:
