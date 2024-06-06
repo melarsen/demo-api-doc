@@ -715,7 +715,7 @@ components:
           $ref: '#/components/schemas/Money'
         otherCosts:
           description: Indicate some other cost with a specified label.
-          $ref: '#/components/schemas/MoneyWithDescription'
+          $ref: '#/components/schemas/MoneyWithLabel'
         totalInvoiceValue:
           description: Total amount for the entire invoice
           $ref: '#/components/schemas/Money'
