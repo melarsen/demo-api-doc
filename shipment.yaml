@@ -7,7 +7,7 @@ externalDocs:
   description: Shipment API documentation
   url: 'https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2613641223/Proteria+Group+Shipment+API'
 servers: 
-    - url: 'https:///{basepath}/{version}/shipment'
+    - url: 'https:///{basepath}/api/{version}/shipment'
       description: The shipment API URL
       variables:
         basepath:
@@ -84,6 +84,31 @@ paths:
         '404':
           description: "Not found. Unknown correlationId"
 
+  /pickup/booking:
+    post:
+      summary: Create a request for a pickup booking
+      description: |
+        Creates a pickup booking request. 
+
+        The correlationId of the request must be unique and is provided by the calling system.   
+        This correlationId is reused to fetch the result in /pickup/findByCorrelationId
+      operationId: createPickupRequest
+      requestBody:
+        $ref: '#/components/requestBodies/PickupBookingRequest'
+      responses:
+        '202':
+          description: item accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestConfirmation'
+        '400':
+          description: item rejected, see alerts for details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestConfirmation'
+
   /resources/{resourceType}/{resourceId}:
     get:
       summary: Get resource by resourceId and resourceType
@@ -128,6 +153,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ShipmentBookingRequest'
+    PickupBookingRequest:
+      description: The object used in the body of POST /pickup/booking
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PickupBookingRequest'
 
   responses:
     RequestConfirmation:
@@ -217,33 +249,6 @@ components:
           type: string
           example: YOUR-UNIQUE-BOOKING-REQUEST-ID-112233445566778899
           description: Your given unique id for this shipment, matches the correlationId in the response
-        carrier:
-          type: string
-          example: postnord_no
-          description: Given identifier of the carrier. Get all possible identifiers from carriers/
-        carrierAccountNumber:
-          type: string
-          example: 12341234
-          description: The carrier account number to book the shipment with.
-        carrierProduct:
-          type: string
-          example: MYPACK_BOX
-          description: Given identifier of the carrier product. Get all possible identifiers from carriers/
-        services:
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceItem'
-        consignor:
-          $ref: '#/components/schemas/AddressParty'
-        consignee:
-          $ref: '#/components/schemas/AddressParty'
-        freightsaleId:
-          type: string
-          example: '2173'
-          description: |
-            TBD...    
-            Internal Proteria kundesys id for freightsale   
-            I think it has its advantages to include this as a separate field.
         sourceSystem:
           type: string
           example: 'LOGISTRA'
@@ -258,39 +263,97 @@ components:
             TBD...   
             Some name of a spesific part of the system, like an id for an integration, app or API ?   
             At least for our own integrations we should be able to provide this, and API-partners should use this.
-        sourceCustomerId:
+        sourceSystemCustomerId:
           type: string
           example: '6300'
           description: | 
             TBD...   
             Internal customer id for the source system (Logistra or Proteria customerId).   
             This is the id in the source system of the customer requesting this booking
-            We might not need this, but can be convenient to include for logging...   
+            We might not need this, but can be convenient to include for logging/reporting...   
+        freightsaleId:
+          type: string
+          example: '2173'
+          description: |
+            TBD...    
+            Internal Proteria kundesys id for freightsale   
+            I think it has its advantages to include this as a separate field.
+        carrierId:
+          type: string
+          example: POSTNORD_NO
+          description: Given identifier of the carrier. Get all possible identifiers from carriers/
+        carrierAccountNumber:
+          type: string
+          example: 12341234
+          description: The carrier account number to book the shipment with.
+        carrierProduct:
+          type: string
+          example: MYPACK_BOX
+          description: Given identifier of the carrier product. Get all possible identifiers from carriers/
         carrierMessage:
           type: string
           example: Entrance B, gate 44, blue doorbell
           description: Extra message to the carrier
+        consignor:
+          $ref: '#/components/schemas/AddressParty'
+        returnParty:
+          description: Used if different from consignor
+          $ref: '#/components/schemas/AddressParty'
+        consignorReference:
+          type: string
+          example: Ordernumber 1234
+          description: Senders reference. TBD Do we also need consignorMessage?? 
+        consignee:
+          $ref: '#/components/schemas/AddressParty'
+        deliveryParty:
+          description: Used if different from consignee
+          $ref: '#/components/schemas/AddressParty'
         consigneeMessage:
           type: string
           example: Order XXXXX
           description: Extra message to the consignee
-        consignorReference:
-          type: string
-          example: Ordernumber 1234
-          description: Senders reference
         consigneeReference:
           type: string
           example: Purchase order 4321
           description: Receivers reference
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceItem'
         parcels:
           type: array
           items:
-            $ref: '#/components/schemas/ParcelItem'
-        customsInformation:
-          $ref: '#/components/schemas/CustomsInformation'
+            $ref: '#/components/schemas/ParcelRequest'
+        customsDetails:
+          $ref: '#/components/schemas/CustomsDetails'
+        carrierSpecificDetails:
+          description: Additional details specific for each carrier.
+          oneOf:
+            - $ref: '#/components/schemas/FedexSpecificDetails'
+            - $ref: '#/components/schemas/BringSpecificDetails'
+
+    FedexSpecificDetails:
+      description: |
+        This is the additional details required for creating booking with Fedex.
+        Not sure if we need this....   
+      type: object
+      properties:
+        packagingType:
+          description: Your used packaging type
+          type: string
+
+    BringSpecificDetails:
+      description: |
+        This is the additional details required for creating booking with Bring.   
+      required:
+        - noe
+      type: object
+      properties:
+        freightPayer:
+          $ref: '#/components/schemas/AddressParty'
 
     ServiceItem:
-      description: Carrier additional service item for a given product
+      description: Carrier additional service item for a given product. Se additionalProperties i OpenApi spec.... 
       required:
       - serviceId
       type: object
@@ -351,11 +414,43 @@ components:
           type: string
           example: Email of contact person
         taxInformations:
+          description: | 
+            List all applicable tax informations, both National and International/Union
+            When shipping abroad - Always use TaxInformation.tinType = BUSINESS_NATIONAL with TaxInformation.tinNumber = MVA number 
+            for consignor
           type: array
           items:
             $ref: '#/components/schemas/TaxInformation'
-            
-    ParcelItem:
+
+    AccountParty:
+      description: | 
+        An address party with additional account information.
+        Applicable for instance in duties payments where an additional carrier account number 
+        is given in order to make the carrier invoice this party for the addtional taxes and duties.
+      required:
+        - accountNumber
+      properties:
+        addressParty:
+          $ref: '#/components/schemas/AddressParty'
+        accountNumber: 
+          description: The account id of this party, for example the carrier account id
+          type: string
+
+    CommonProperty:
+      description: Additional items for a given Property
+      required:
+      - serviceId
+      type: object
+      properties:
+        serviceId:
+          type: string
+          description: Given identifier of the carrier service. Get all possible identifiers from carriers/
+        serviceValue:
+          type: string
+          description: Given value of the carrier service. Get all possible values from carriers/
+
+
+    ParcelRequest:
       description: |
         When creating a booking, provide the parcel information in this object.  
         Provide your own unique identifier of the parcel as the correlationId   
@@ -383,30 +478,76 @@ components:
         heightCM:
           type: integer
           example: 30
-        weightKG:
+        weightGrams:
           type: integer
-          example: 5
+          example: 5000
         volumeDM3:
           type: integer
           example: 1
         loadMeters:
           type: integer
           example: 2
-        ParcelGoodsItems:
-          type: array
-          description: |
-            List of goods items within this parcel.
-          items:
-            $ref: '#/components/schemas/ParcelGoodsItem'
 
-    ParcelGoodsItem:
-      description: TBD... - Her kommer vareinformasjon inn...
+    Commodity:
+      description: This is the commodity information
       properties:
-        correlationId:
+        name:
           type: string
-        somethingElse:
+        description:
           type: string
-          description: TBD - This items is not defined yet....
+        countryOfManufacture:
+          type: string
+          description: | 
+            Two letter country code of the country manufactured this item. 
+            https://developer.fedex.com/api/en-us/guides/api-reference.html#countrycodes
+          example: NO
+        partNumber:
+          type: string
+          description: This is a part number. 
+          example: 178
+        harmonizedCode:
+          type: string
+          description: Harmonized Tariff System (HTS) code, used for customs requirements
+          example: NO
+        exportLicenseNumber:
+          type: string
+        exportLicenseExpirationDate:
+          type: string
+          format: date-time
+          description: Specify the export license expiration date for the shipment.<br>Format YYYY-MM-DD<br>
+          example : 2022-04-22
+        packagingIdentificationTag:
+          type: string
+          description: This is an identifying mark or number used on the packaging of a shipment to help customers identify a particular shipment
+          example: 87123
+        unitPrice:
+          description: This is the unit price.
+          $ref: '#/components/schemas/Money'
+        unitQuantity:
+          type: integer
+          description: This is the units quantity per commodity (using unitQuantityMeasure as the unit of measure). This is used to estimate duties and taxes.
+          example: 125
+        unitQuantityMeasure:
+          type: string
+          description: | 
+            This is the unit of measure for the units quantity. 
+            Ref. https://developer.fedex.com/api/en-us/guides/api-reference.html#harmonizedsystemcodeunitofmeasure-table1
+            Example is EA for Each
+          example: EA 
+        unitWeightGrams:
+          type: integer
+          description: The weight in grams for each unit
+        totalCustomsValue:
+          description: This customs value is applicable for all items(or units) under the specified commodity.
+          $ref: '#/components/schemas/Money'
+        purpose:
+          type: string
+          description: This is the purpose of this shipment. This is used for calculation
+            of duties and taxes.
+          example: BUSINESS
+          enum:
+          - BUSINESS
+          - CONSUMER
 
     TaxInformation:
       type: object
@@ -429,15 +570,226 @@ components:
             - BUSINESS_UNION
             - PERSONAL_NATIONAL     
 
-    CustomsInformation:
+    MoneyWithLabel:
+      description: A money object with a corresponding label element
+      required:
+        - moneyLabel
+        - money
+      properties:
+        moneyLabel:
+          type: string
+        money:
+          $ref: '#/components/schemas/Money'
+    Money:
+      description: | 
+        This is a Money object. 
+        To avoid decimal as input, integers is always used and the last to digits are considered as decimals.
+        Hence, you give the currenty value in hundredths
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: integer
+          description: This is the amount where the last two digits is ALWAYS used as decimal. 1245 USD -> 12.45 USD
+          example: 1245
+        currency:
+          type: string
+          description: | 
+            This is the currency code for the amount. 
+            https://developer.fedex.com/api/en-us/guides/api-reference.html#currencycodes
+          example: USD
+
+
+    CustomsDetails:
       type: object
       description: |
-        TBD...   
         Customs Information, applicable when shipping abroad.
       properties:
-        somethingCustomsStuff:
+        exporter:
+          description: If not specified, consignor information is used
+          $ref: '#/components/schemas/AddressParty'
+        importer:
+          description: If not specified, consignee information is used
+          $ref: '#/components/schemas/AddressParty'
+        broker:
+          description: If a designated brokes is used for this shipment, specify address and contact information.
+          $ref: '#/components/schemas/AddressParty'
+        dutiesPayor:
           type: string
-          description: TBD - This items is not defined yet....
+          description: | 
+            This is the duties payor type, basically indicates who is the payor for the shipment.
+            Fedex - Required for Express and Ground.
+            The payment type COLLECT is applicable only for Ground shipments.
+            When PROTERIA -> Proteria receives the invoice. Applies to dutiesPayment.paymentType = SENDER in FedEx
+            When THIRD_PARTY -> Another customer account id gets the invoice. Details specified in thirdPartyPayor
+          enum:
+          - PROTERIA
+          - THIRD_PARTY
+        thirdPartyPayor:
+          description: Applicable if dutiesPayor = THIRD_PARTY
+          $ref: '#/components/schemas/AccountParty'
+        commodities:
+          type: array
+          description: List of commodites within this shipment. 
+          items:
+            $ref: '#/components/schemas/Commodity'
+        commercialInvoiceDetails:
+          $ref: '#/components/schemas/CommercialInvoiceDetails'
+
+    CommercialInvoiceDetails:
+      type: object
+      description: |
+        Commercial Invoice Information, applicable when shipping abroad.
+        Use this object to provide Commercial Invoice details. 
+      properties:
+        invoiceDate:
+          type: string
+        invoiceHeaderResourceId:
+          description: Resource id of the header
+          type: string
+        invoiceSignatureResourceId:
+          type: string
+        invoiceNumber:
+          type: string
+        purchaseOrderNumber:
+          type: string
+        departmentNumber:
+          type: string
+        customerReferenceNumber:
+          type: string
+        paymentTerms:
+          type: string
+        originatorName:
+          description: The originator name that will populate the Commercial Invoice
+          type: string
+        declarationStatement:
+          type: string
+        termsOfSale:
+          type: string
+        shipmentPurpose:
+          type: string
+          description: 'This is the reason for the shipment. <br>Note: SOLD is not
+            a valid purpose for a Proforma Invoice.'
+          example: SOLD
+          enum:
+          - GIFT
+          - NOT_SOLD
+          - PERSONAL_EFFECTS
+          - REPAIR_AND_RETURN
+          - SAMPLE
+          - SOLD
+        specialInstructions:
+          type: string
+          description: These are special instructions that will be populated on the Commercial Invoice.
+        comments:
+          type: array
+          description: The comments that will populate the Commercial Invoice.
+          example:
+          - optional comments for the commercial invoice
+          items:
+            type: string
+        totalUnits:
+          type: integer
+        totalPackages:
+          type: integer
+        totalNetWeightGrams:
+          type: integer
+        totalGrossWeightGrams:
+          type: integer
+        totalCustomsValue:
+          description: Total value of the goods to export
+          $ref: '#/components/schemas/Money'
+        insuranceCharge:
+          description: Indicate the insurance charge.
+          $ref: '#/components/schemas/Money'
+        freightCharge:
+          description: Indicate the freight charge.
+          $ref: '#/components/schemas/Money'
+        packingCosts:
+          description: Indicate the packing cost.
+          $ref: '#/components/schemas/Money'
+        handlingCosts:
+          description: Indicate the handling cost.
+          $ref: '#/components/schemas/Money'
+        otherCosts:
+          description: Indicate some other cost with a specified label.
+          $ref: '#/components/schemas/MoneyWithDescription'
+        totalInvoiceValue:
+          description: Total amount for the entire invoice
+          $ref: '#/components/schemas/Money'
+
+
+
+
+    PickupBookingRequest:
+      description: |
+        This is the PickupBookingRequest created to request a pickup with a carrier.   
+        You need to make sure to create a unique correlationId for each booking request.
+      required:
+        - correlationId
+        - carrier
+        - carrierAccountNumber
+        - carrierProduct
+        - consignor
+      type: object
+      properties:
+        correlationId:
+          type: string
+          example: YOUR-UNIQUE-BOOKING-REQUEST-ID-112233445566778899
+          description: Your given unique id for this shipment, matches the correlationId in the response
+        sourceSystem:
+          type: string
+          example: 'LOGISTRA'
+          description: Could be one of LOGISTRA, PROTERIA, etc.
+        sourceSystemPart:
+          type: string
+          example: 'OUR-SHOPIFY-APP'
+          description: |
+            TBD...   
+            Some name of a spesific part of the system, like an id for an integration, app or API ?   
+            At least for our own integrations we should be able to provide this, and API-partners should use this.
+        sourceSystemCustomerId:
+          type: string
+          example: '6300'
+          description: | 
+            TBD...   
+            Internal customer id for the source system (Logistra or Proteria customerId).   
+            This is the id in the source system of the customer requesting this booking
+            We might not need this, but can be convenient to include for logging/reporting...   
+        freightsaleId:
+          type: string
+          example: '2173'
+          description: |
+            TBD...    
+            Internal Proteria kundesys id for freightsale   
+            I think it has its advantages to include this as a separate field.
+        carrierId:
+          type: string
+          example: POSTNORD_NO
+          description: Given identifier of the carrier. Get all possible identifiers from carriers/
+        carrierAccountNumber:
+          type: string
+          example: 12341234
+          description: The carrier account number to book the shipment with.
+        pickupType:
+          type: string
+          description: Given identifier of the carrier pickup type. Get all possible identifiers from carriers/pickupTypes
+        pickupMessage:
+          type: string
+          description: Extra message to the carrier regarding pickup
+        pickupAddress:
+          $ref: '#/components/schemas/AddressParty'
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceItem'
+        parcels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParcelRequest'
+
 
 
     ShipmentResponse:
@@ -462,10 +814,11 @@ components:
       type: string
       description: |
         One of the possible statuses to get.   
-        When *READY* use the correlationId to fetch the associated response with /shipment/findByCorrelationId
+        When *COMPLETE* use the correlationId to fetch the associated response with /shipment/findByCorrelationId
       enum:
         - IN_PROGRESS
-        - READY
+        - COMPLETE
+        - FAILED
 
     Shipment:
       type: object

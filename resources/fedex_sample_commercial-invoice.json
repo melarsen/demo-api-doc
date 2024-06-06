@@ -1,0 +1,144 @@
+{
+    "mergeLabelDocOption": "LABELS_ONLY",
+    "labelResponseOptions": "URL_ONLY",
+    "requestedShipment": {
+        "shipper": {
+            "contact": {
+                "personName": "Mindaugas ",
+                "phoneNumber": "96731306",
+                "companyName": "ProTeria AS",
+                "emailAddress": "mindaugas@proteria.com"
+            },
+            "address": {
+                "streetLines": [
+                    "Dronning Eufemias gate 16"
+                ],
+                "city": "Oslo",
+                "postalCode": "0152",
+                "countryCode": "NO",
+                "residential": false
+            },
+            "tins": [
+                {
+                    "number": "222222222222",
+                    "tinType": "BUSINESS_NATIONAL"
+                }
+            ]
+        },
+        "recipients": [
+            {
+                "contact": {
+                    "personName": "",
+                    "phoneNumber": "+4696731301",
+                    "companyName": "test LT"
+                },
+                "address": {
+                    "streetLines": [
+                        "Laisve al. 17"
+                    ],
+                    "city": "Kaunas",
+                    "postalCode": "44320",
+                    "countryCode": "LT",
+                    "residential": false
+                }
+            }
+        ],
+        "shipDatestamp": "2024-06-06",
+        "serviceType": "FEDEX_REGIONAL_ECONOMY",
+        "packagingType": "YOUR_PACKAGING",
+        "pickupType": "CONTACT_FEDEX_TO_SCHEDULE",
+        "blockInsightVisibility": false,
+        "shippingChargesPayment": {
+            "paymentType": "SENDER"
+        },
+        "labelSpecification": {
+            "imageType": "PDF",
+            "labelStockType": "PAPER_4X675"
+        },
+        "customsClearanceDetail": {
+            "dutiesPayment": {
+                "paymentType": "RECIPIENT"
+            },
+            "isDocumentOnly": false,
+            "commodities": [
+                {
+                    "description": "asdasdas",
+                    "countryOfManufacture": "LV",
+                    "quantity": 1,
+                    "quantityUnits": "EA",
+                    "unitPrice": {
+                        "amount": 122,
+                        "currency": "NOK"
+                    },
+                    "customsValue": {
+                        "amount": 122,
+                        "currency": "NOK"
+                    },
+                    "weight": {
+                        "units": "KG",
+                        "value": 20
+                    },
+                    "harmonizedCode": "ES1234"
+                }
+            ],
+            "commercialInvoice": {
+                "originatorName": "Bobble AS",
+                "comments": [
+                    null,
+                    null
+                ],
+                "declarationStatement": "ss ,",
+                "termsOfSale": "DDP",
+                "customerReferences": [
+                    {
+                        "customerReferenceType": "INVOICE_NUMBER"
+                    }
+                ],
+                "shipmentPurpose": "SOLD"
+            }
+        },
+        "shippingDocumentSpecification": {
+            "shippingDocumentTypes": [
+                "COMMERCIAL_INVOICE"
+            ],
+            "commercialInvoiceDetail": {
+                "documentFormat": {
+                    "stockType": "PAPER_LETTER",
+                    "docType": "PDF"
+                }
+            }
+        },
+        "requestedPackageLineItems": [
+            {
+                "weight": {
+                    "units": "KG",
+                    "value": 20
+                },
+                "dimensions": {
+                    "length": 12,
+                    "width": 12,
+                    "height": 12,
+                    "units": "CM"
+                },
+                "customerReferences": [
+                    {
+                        "customerReferenceType": "P_O_NUMBER",
+                        "value": "2173"
+                    }
+                ]
+            }
+        ],
+        "shipmentSpecialServices": {
+            "specialServiceTypes": [
+                "ELECTRONIC_TRADE_DOCUMENTS"
+            ],
+            "etdDetail": {
+                "documentType": "COMMERCIAL_INVOICE",
+                "documentId": "WLlE4IhGRUghhrDm"
+            }
+        }
+    },
+    "accountNumber": {
+        "value": "740562371"
+    }
+}

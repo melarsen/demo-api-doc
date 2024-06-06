@@ -1,0 +1,229 @@
+{
+"accountNumber":
+    {
+    "value": "584082720"
+    },
+"labelResponseOptions": "URL_ONLY",
+"mergeLabelDocOption": "LABELS_ONLY",
+"requestedShipment":
+    {
+    "blockInsightVisibility": false,
+    "customsClearanceDetail":
+        {
+        "commercialInvoice":
+            {
+            "comments":
+                [
+                null,
+                null
+                ],
+            "customerReferences":
+                [
+                    {
+                    "customerReferenceType": "INVOICE_NUMBER"
+                    }
+                ],
+            "originatorName": "Proteria AS",
+            "shipmentPurpose": "GIFT",
+            "termsOfSale": "FCA"
+            },
+        "commodities":
+            [
+                {
+                "countryOfManufacture": "LT",
+                "customsValue":
+                    {
+                    "amount": 500.0,
+                    "currency": "NOK"
+                    },
+                "description": "T-shirt",
+                "harmonizedCode": "62079900",
+                "quantity": 2,
+                "quantityUnits": "EA",
+                "unitPrice":
+                    {
+                    "amount": 250.0,
+                    "currency": "NOK"
+                    },
+                "weight":
+                    {
+                    "units": "KG",
+                    "value": 1.0
+                    }
+                },
+                {
+                "countryOfManufacture": "LT",
+                "customsValue":
+                    {
+                    "amount": 150.0,
+                    "currency": "NOK"
+                    },
+                "description": "Scarf",
+                "harmonizedCode": "62142000",
+                "quantity": 2,
+                "quantityUnits": "EA",
+                "unitPrice":
+                    {
+                    "amount": 75.0,
+                    "currency": "NOK"
+                    },
+                "weight":
+                    {
+                    "units": "KG",
+                    "value": 1.0
+                    }
+                },
+                {
+                "countryOfManufacture": "LT",
+                "customsValue":
+                    {
+                    "amount": 200.0,
+                    "currency": "NOK"
+                    },
+                "description": "Hat",
+                "harmonizedCode": "65069900",
+                "quantity": 2,
+                "quantityUnits": "EA",
+                "unitPrice":
+                    {
+                    "amount": 100.0,
+                    "currency": "NOK"
+                    },
+                "weight":
+                    {
+                    "units": "KG",
+                    "value": 1.0
+                    }
+                }
+            ],
+        "dutiesPayment":
+            {
+            "paymentType": "SENDER"
+            },
+        "isDocumentOnly": false
+        },
+    "labelSpecification":
+        {
+        "imageType": "PDF",
+        "labelStockType": "PAPER_4X675"
+        },
+    "packagingType": "YOUR_PACKAGING",
+    "pickupType": "CONTACT_FEDEX_TO_SCHEDULE",
+    "recipients":
+        [
+            {
+            "address":
+                {
+                "city": "T\u00fcbingen",
+                "countryCode": "DE",
+                "postalCode": "72070",
+                "residential": true,
+                "streetLines":
+                    [
+                    "Panoramastrasse 21"
+                    ]
+                },
+            "contact":
+                {
+                "emailAddress": "anja@proteria.com",
+                "personName": "Anja F\u00fcger",
+                "phoneNumber": "+4916099157681"
+                }
+            }
+        ],
+    "requestedPackageLineItems":
+        [
+            {
+            "customerReferences":
+                [
+                    {
+                    "customerReferenceType": "P_O_NUMBER",
+                    "value": "2173"
+                    }
+                ],
+            "dimensions":
+                {
+                "height": 10,
+                "length": 20,
+                "units": "CM",
+                "width": 15
+                },
+            "weight":
+                {
+                "units": "KG",
+                "value": 3.0
+                }
+            }
+        ],
+    "serviceType": "FEDEX_INTERNATIONAL_CONNECT_PLUS",
+    "shipDatestamp": "2023-12-06",
+    "shipmentSpecialServices":
+        {
+        "etdDetail":
+            {
+            "requestedDocumentTypes":
+                [
+                "COMMERCIAL_INVOICE"
+                ]
+            },
+        "specialServiceTypes":
+            [
+            "ELECTRONIC_TRADE_DOCUMENTS"
+            ]
+        },
+    "shipper":
+        {
+        "address":
+            {
+            "city": "Halden",
+            "countryCode": "NO",
+            "postalCode": "1782",
+            "residential": false,
+            "streetLines":
+                [
+                "Busterudkleiva 54"
+                ]
+            },
+        "contact":
+            {
+            "companyName": "Proteria AS",
+            "emailAddress": "erik@proteria.com",
+            "personName": "Erik Mathisen",
+            "phoneNumber": "91532670"
+            },
+        "tins":
+            [
+                {
+                "number": "IM7520015048",
+                "tinType": "BUSINESS_UNION"
+                },
+                {
+                "number": "987667796MVA",
+                "tinType": "BUSINESS_NATIONAL"
+                }
+            ]
+        },
+    "shippingChargesPayment":
+        {
+        "paymentType": "SENDER"
+        },
+    "shippingDocumentSpecification":
+        {
+        "commercialInvoiceDetail":
+            {
+            "customerImageUsages":
+                [
+                ],
+            "documentFormat":
+                {
+                "docType": "PDF",
+                "stockType": "PAPER_LETTER"
+                }
+            },
+        "shippingDocumentTypes":
+            [
+            "COMMERCIAL_INVOICE"
+            ]
+        }
+    }
+}
