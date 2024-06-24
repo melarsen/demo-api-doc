@@ -62,9 +62,11 @@ paths:
             application/json:
               schema:
                 type: array
-                description: A list of carriers available for this customer
+                description: | 
+                  A list of customer carrier ids available for this customer
+                  Use /customer/{customerId}/carrier/{customerCarrierId} to fetch the actual customer carrier definition
                 items:
-                  $ref: '#/components/schemas/CustomerCarrier'
+                  type: string
         '400':
           description: "Invalid arguments"
         '404':
@@ -103,8 +105,8 @@ paths:
 
   /customer/{customerId}/resources:
     get:
-      summary: Get all customer resources by customerId
-      description: Get all customer resources for a given customerId
+      summary: Get a list of all customer resources ids
+      description: Get all common customer resources ids
       operationId: getCustomerResourcesById
       parameters:
         - name: customerId
@@ -119,7 +121,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CustomerResources"
+                type: array
+                description: | 
+                  A list of all customer resource ids to be used with
+                  /customer/{customerId}/resource/{resourceId} to fetch the actual resource
+                items:
+                  type: string              
         '400':
           description: "Invalid arguments"
         '404':
@@ -255,8 +262,6 @@ components:
             TBD...   
           items:
             $ref: 'https://melarsen.github.io/demo-api-doc/shipment.yaml#/components/schemas/CarrierProduct'
-        specialCarrierSettings:
-          $ref: '#/components/schemas/SpecialCarrierSettings'
 
     CustomerInformation:
       description: | 
@@ -340,20 +345,3 @@ components:
           description: |
             More properties to be defined?...
             TBD...
-
-    SpecialCarrierSettings:
-      description: | 
-        Additional special carrier settings.   
-        TBD... 
-      type: object
-      properties:
-        someCustomsParameter:
-          type: string
-          description: | 
-            TBD...
-
-    CustomerResources:
-      type: array
-      description: A list of customer resources
-      items:
-        $ref: '#/components/schemas/CustomerResource'

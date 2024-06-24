@@ -89,7 +89,6 @@ paths:
       summary: Create a request for a pickup booking
       description: |
         Creates a pickup booking request. 
-
         The correlationId of the request must be unique and is provided by the calling system.   
         This correlationId is reused to fetch the result in /pickup/findByCorrelationId
       operationId: createPickupRequest
