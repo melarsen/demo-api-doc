@@ -5,8 +5,6 @@ servers:
   description: Sandbox Server
 - url: ''
   description: Production Server
-schemes:
-- https
 info:
   version: 1.0.0
   title: Ship API

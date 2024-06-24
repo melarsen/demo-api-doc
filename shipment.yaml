@@ -295,6 +295,7 @@ components:
           example: Entrance B, gate 44, blue doorbell
           description: Extra message to the carrier
         consignor:
+          description: The sender party
           $ref: '#/components/schemas/AddressParty'
         returnParty:
           description: Used if different from consignor
@@ -302,8 +303,13 @@ components:
         consignorReference:
           type: string
           example: Ordernumber 1234
-          description: Senders reference. TBD Do we also need consignorMessage?? 
+          description: Senders reference. 
+        consignorMessage:
+          type: string
+          example: Ordernumber 1234
+          description: Extra message from the consignor
         consignee:
+          description: The receiving party (recipient)
           $ref: '#/components/schemas/AddressParty'
         deliveryParty:
           description: Used if different from consignee
@@ -345,15 +351,14 @@ components:
     BringSpecificDetails:
       description: |
         This is the additional details required for creating booking with Bring.   
-      required:
-        - noe
       type: object
       properties:
         freightPayer:
+          description: Another payer than consignor of the freight. Default is consignor
           $ref: '#/components/schemas/AddressParty'
 
     ServiceItem:
-      description: Carrier additional service item for a given product. Se additionalProperties i OpenApi spec.... 
+      description: Carrier additional service item for a given product. Se additionalProperties i OpenApi spec. 
       required:
       - serviceId
       type: object
@@ -367,8 +372,7 @@ components:
 
     AddressParty:
       description: | 
-        Currently reusing this object for both consignor and consignee.   
-        Not sure if we need to differenciate...
+        Name and address information object
       required:
         - name
         - address1
@@ -437,17 +441,17 @@ components:
           type: string
 
     CommonProperty:
-      description: Additional items for a given Property
+      description: Generic Property id/value object
       required:
-      - serviceId
+      - propertyId
       type: object
       properties:
-        serviceId:
+        propertyId:
           type: string
-          description: Given identifier of the carrier service. Get all possible identifiers from carriers/
-        serviceValue:
+          description: Given identifier of the property.
+        propertyValue:
           type: string
-          description: Given value of the carrier service. Get all possible values from carriers/
+          description: Given value of the property.
 
 
     ParcelRequest:
@@ -484,9 +488,9 @@ components:
         volumeDM3:
           type: integer
           example: 1
-        loadMeters:
+        loadCM:
           type: integer
-          example: 2
+          example: 200
 
     Commodity:
       description: This is the commodity information
@@ -614,7 +618,7 @@ components:
           description: If not specified, consignee information is used
           $ref: '#/components/schemas/AddressParty'
         broker:
-          description: If a designated brokes is used for this shipment, specify address and contact information.
+          description: If a designated broker is used for this shipment, specify address and contact information.
           $ref: '#/components/schemas/AddressParty'
         dutiesPayor:
           type: string
@@ -628,7 +632,7 @@ components:
           - PROTERIA
           - THIRD_PARTY
         thirdPartyPayor:
-          description: Applicable if dutiesPayor = THIRD_PARTY
+          description: Applicable only if dutiesPayor = THIRD_PARTY
           $ref: '#/components/schemas/AccountParty'
         commodities:
           type: array
@@ -721,8 +725,6 @@ components:
           $ref: '#/components/schemas/Money'
 
 
-
-
     PickupBookingRequest:
       description: |
         This is the PickupBookingRequest created to request a pickup with a carrier.   
@@ -776,6 +778,10 @@ components:
         pickupType:
           type: string
           description: Given identifier of the carrier pickup type. Get all possible identifiers from carriers/pickupTypes
+        pickupDate:
+          type: string
+          description: The requested pickup date. <br>Format YYYY-MM-DD
+          format: date-time
         pickupMessage:
           type: string
           description: Extra message to the carrier regarding pickup
@@ -789,7 +795,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ParcelRequest'
-
 
 
     ShipmentResponse:
