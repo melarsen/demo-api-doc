@@ -6,18 +6,6 @@ info:
 externalDocs:
   description: Shipment API documentation
   url: 'https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2613641223/Proteria+Group+Shipment+API'
-servers: 
-    - url: 'https:///{basepath}/api/{version}/shipment'
-      description: The shipment API URL
-      variables:
-        basepath:
-          default: api.proteria.com
-          enum:
-            - api.proteria.com
-            - sandbox.proteria.com
-            - localhost
-        version:
-          default: v1
 paths:
   /carriers:
     get:
@@ -206,10 +194,12 @@ components:
       properties:
         productId:
           type: string
-          example: MYPACK_BOX
+          example: mypack_box
         productName:
           type: string
           example: Mypack Box
+        productCategory:
+          $ref: '#/components/schemas/ProductCategory'
         productServices:
           type: array
           description: List of this products supported additional services
@@ -922,7 +912,20 @@ components:
           type: string
           description: description of alert
           example: The product value is unknown
-  
+
+    ProductCategory:
+          type: string
+          description: | 
+            Enum of the supported product categories.
+            TBD Express? Lurer litt på om denne egentlig er en kategori...
+          enum:
+            - manned_pickup_point
+            - unmanned_pickup_point
+            - mailbox
+            - home
+            - business
+            - express
+
     ResourceType:
           type: string
           description: Enum of the supported type of resources we provide

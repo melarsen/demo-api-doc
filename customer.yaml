@@ -6,18 +6,6 @@ info:
 externalDocs:
   description: Customer API documentation
   url: 'https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2625732623/Proteria+Group+Customer+API'
-servers: 
-    - url: 'https:///{basepath}/{version}/customer'
-      description: The customer API URL
-      variables:
-        basepath:
-          default: api.proteria.com
-          enum:
-            - api.proteria.com
-            - sandbox.proteria.com
-            - localhost
-        version:
-          default: v1
 paths:
   /customer/{customerId}:
     get:
@@ -270,6 +258,7 @@ components:
         Might rename to CustomerAddress + CustomerContact?
         Might reuse AddressParty or Actor objects from shipment.yaml
         TBD - To be defined...
+      type: object
       properties:
         customerName:
           type: string

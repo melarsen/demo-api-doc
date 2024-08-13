@@ -10,9 +10,29 @@ Internal Proteria Group Shipment API
 - Doc: https://proteria.atlassian.net/wiki/spaces/EXTPARTNERS/pages/2613641223/Proteria+Group+Shipment+API
 - File: shipment.yaml
 
+# Generate Function App from Open API specs
+
+When the yaml has been created use the VS Code Extension "Azure Functions" to generate Function App from the yaml spec
+- Needed to remove the servers section from the yaml file
+- Note really impressed with this extension, but I guess it has its benefits when starting from scratch...
+
+## Prerequisites
+- Needed Extension: Azure Functions
+- Needed NPM package: npm install -g npm@10.8.1
+- Created a folder to put the generated files - "GeneratedFunctionApp"
+- Added the folder "GeneratedFunctionApp" to .gitignore
+
+## Howto generate Azure Function App
+- Create an empty subfolder for your Function App
+  - Add this folder to .gitignore
+- Click on the Azure icon in the sidebar
+- Hover "Workspace" and click the Azure Function icon that appears and select "Create Function"
+- Follow wizard Select "HTTP trigger from OpenAPI V2/V3 Specification"
+- Select the open API spec file and enter the namespace you like
+- Select the subfolder you created and generate the app
 
 
-## Sample
+# Sample
 Sample Open API yaml
 
 - File: petstore-sample.yaml
@@ -20,7 +40,7 @@ Sample Open API yaml
 ----
 ----
 
-# Template doc: How to host Swagger API documentation with GitHub Pages
+## Template doc: How to host Swagger API documentation with GitHub Pages
 [<img alt="The blog of Peter Evans: How to Host Swagger Documentation With Github Pages" title="View blog post" src="https://peterevans.dev/img/blog-published-badge.svg">](https://peterevans.dev/posts/how-to-host-swagger-docs-with-github-pages/)
 
 This repository is a template for using the [Swagger UI](https://github.com/swagger-api/swagger-ui) to dynamically generate beautiful documentation for your API and host it for free with GitHub Pages.
@@ -29,7 +49,7 @@ The template will periodically auto-update the Swagger UI dependency and create 
 
 The example API specification used by this repository can be seen hosted at [https://peter-evans.github.io/swagger-github-pages](https://peter-evans.github.io/swagger-github-pages/).
 
-## Steps to use this template
+### Steps to use this template
 
 1. Click the `Use this template` button above to create a new repository from this template.
 
@@ -40,7 +60,7 @@ The example API specification used by this repository can be seen hosted at [htt
 3. Browse to the Swagger documentation at `https://{github-username}.github.io/{repository-name}/`.
 
 
-## Steps to manually configure in your own repository
+### Steps to manually configure in your own repository
 
 1. Download the latest stable release of the Swagger UI [here](https://github.com/swagger-api/swagger-ui/releases).
 
